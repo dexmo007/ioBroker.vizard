@@ -1,0 +1,48 @@
+{
+    "cli": true,
+    "adapterName": "vizard",
+    "title": "Vizard",
+    "description": "Programm your own frontend/visualization for your Smart Home",
+    "keywords": [
+        "custom",
+        "frontend",
+        "visualization",
+        "programmable"
+    ],
+    "expert": "yes",
+    "features": [
+        "adapter"
+    ],
+    "adminFeatures": [
+        "tab",
+        "custom"
+    ],
+    "type": "visualization",
+    "startMode": "daemon",
+    "connectionType": "local",
+    "dataSource": "push",
+    "connectionIndicator": "no",
+    "language": "JavaScript",
+    "adminReact": "yes",
+    "tabReact": "yes",
+    "tools": [
+        "ESLint",
+        "type checking",
+        "devcontainer"
+    ],
+    "releaseScript": "yes",
+    "devServer": "yes",
+    "devServerPort": 8081,
+    "indentation": "Space (4)",
+    "quotes": "single",
+    "es6class": "yes",
+    "authorName": "dexmo007",
+    "authorGithub": "dexmo007",
+    "authorEmail": "info@dexmo-hq.com",
+    "gitRemoteProtocol": "SSH",
+    "gitCommit": "yes",
+    "license": "MIT License",
+    "ci": "gh-actions",
+    "dependabot": "yes",
+    "creatorVersion": "1.34.0"
+}
