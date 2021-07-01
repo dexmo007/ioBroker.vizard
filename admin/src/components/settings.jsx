@@ -9,6 +9,11 @@ import MenuItem from "@material-ui/core/MenuItem";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 import I18n from "@iobroker/adapter-react/i18n";
+import IconButton from '@material-ui/core/IconButton';
+import Button from '@material-ui/core/Button';
+import DeleteIcon from '@material-ui/icons/Delete';
+import AddIcon from '@material-ui/icons/Add';
+import produce from "immer"
 
 /**
  * @type {() => Record<string, import("@material-ui/core/styles/withStyles").CreateCSSProperties>}
@@ -142,12 +147,66 @@ class Settings extends React.Component {
         );
     }
 
-    render() {
+    renderMappingInput(index, title, attr, type) {
         return (
+            <TextField
+                label={I18n.t(title)}
+                className={`${this.props.classes.input} ${this.props.classes.controlElement}`}
+                value={this.props.native.stateMappings[index][attr]}
+                type={type || "text"}
+                onChange={(e) => this.props.onChange('stateMappings', produce(this.props.native.stateMappings, draft => {
+                    draft[index][attr] = e.target.value;
+                }))}
+                margin="normal"
+            />
+        );
+    }
+
+    renderMappingCheckbox(index, title, attr, style) {
+        return (
+            <FormControlLabel
+                key={attr}
+                style={{
+                    paddingTop: 5,
+                    ...style
+                }}
+                className={this.props.classes.controlElement}
+                control={
+                    <Checkbox
+                        checked={this.props.native.stateMappings[index][attr]}
+                        onChange={() => this.props.onChange('stateMappings', produce(this.props.native.stateMappings, draft => {
+                            draft[index][attr] = !this.props.native.stateMappings[index][attr];
+                        }))}
+                        color="primary"
+                    />
+                }
+                label={I18n.t(title)}
+            />
+        );
+    }
+
+
+    render() {
+        return (<>
             <form className={this.props.classes.tab}>
-                {this.renderCheckbox("option1", "option1")}<br />
-                {this.renderInput("option2", "option2", "text")}
+                {this.props.native.stateMappings.map((stateMapping, index) => <div key={index}>
+                    {this.renderMappingInput(index,'Source state','sourceState')}
+                    {this.renderMappingInput(index,'Target','target')}
+                    {this.renderMappingCheckbox(index,'Include children','includeChildren')}
+                    <IconButton aria-label="delete" className={this.props.classes.margin} onClick={() => this.props.onChange('stateMappings', produce(this.props.native.stateMappings, draft => {
+                        draft.splice(index,1);
+                    }))}>
+                        <DeleteIcon />
+                    </IconButton>
+                </div>)}
+            <Button startIcon={<AddIcon/>} onClick={() => this.props.onChange('stateMappings', [...this.props.native.stateMappings, {}])}>
+                Add
+            </Button>
             </form>
+            <pre>
+                {JSON.stringify(this.props.native)}
+            </pre>
+            </>
         );
     }
 }

@@ -32,51 +32,35 @@ class Vizard extends utils.Adapter {
      * Is called when databases are connected and adapter received configuration.
      */
     async onReady() {
-        // Initialize your adapter here
+        this.log.info('Getting web config');
+        const webConfig = await this.getForeignObjectAsync('system.adapter.web.0');
+        const overrideConfig = {
+            webPort: (webConfig && webConfig.native && webConfig.native.port) || 8082,
+            socketPort: 8500 + this.instance,
+            socketSecure: false,
+            web_protocol: 'http'
+        };
+        const config = await this.getForeignObjectAsync('system.adapter.' + this.namespace);
+        if (!config) {
+            this.terminate('', 1);
+        }
+        const defaultSocketPort = 8500 + this.instance;
+        config.native = {
+            ...config.native,
+            ...overrideConfig,
+            socketPort: defaultSocketPort
+        };
+        this.log.debug('Web config: ' + JSON.stringify(config));
+        await this.setForeignObjectAsync(config._id, config);
 
-        // The adapters config (in the instance object everything under the attribute "native") is accessible via
-        // this.config:
-        this.log.info('config option1: ' + this.config.option1);
-        this.log.info('config option2: ' + this.config.option2);
+        this.log.info('Got web config');
+        this.log.info('config state mappings: ' + this.config.stateMappings);
 
-        /*
-        For every state in the system there has to be also an object of type state
-        Here a simple template for a boolean variable named "testVariable"
-        Because every adapter instance uses its own unique namespace variable names can't collide with other adapters variables
-        */
-        await this.setObjectNotExistsAsync('testVariable', {
-            type: 'state',
-            common: {
-                name: 'testVariable',
-                type: 'boolean',
-                role: 'indicator',
-                read: true,
-                write: true,
-            },
-            native: {},
-        });
+        for (const stateMapping of this.config.stateMappings) {
+            this.subscribeForeignStates(stateMapping.sourceState);
+        }
 
-        // In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
-        this.subscribeStates('testVariable');
-        // You can also add a subscription for multiple states. The following line watches all states starting with "lights."
-        // this.subscribeStates('lights.*');
-        // Or, if you really must, you can also watch all states. Don't do this if you don't need to. Otherwise this will cause a lot of unnecessary load on the system:
-        // this.subscribeStates('*');
-        this.subscribeForeignStates('0_userdata.0.example_state');
-
-        /*
-            setState examples
-            you will notice that each setState will cause the stateChange event to fire (because of above subscribeStates cmd)
-        */
-        // the variable testVariable is set to true as command (ack=false)
-        await this.setStateAsync('testVariable', true);
-
-        // same thing, but the value is flagged "ack"
-        // ack should be always set to true if the value is received from or acknowledged from the target system
-        await this.setStateAsync('testVariable', { val: true, ack: true });
-
-        // same thing, but the state is deleted after 30s (getState will return null afterwards)
-        await this.setStateAsync('testVariable', { val: true, ack: true, expire: 30 });
+        this.writeFileAsync(this.name, 'test.html', 'this is a test!!');
 
         // examples for the checkPassword/checkGroup functions
         let result = await this.checkPasswordAsync('admin', 'iobroker');
