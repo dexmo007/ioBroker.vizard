@@ -19,7 +19,7 @@
     "url": "git@github.com:dexmo007/ioBroker.vizard.git"
   },
   "dependencies": {
-    "@iobroker/adapter-core": "^2.5.0",
+    "@iobroker/adapter-core": "^2.5.1",
     "express": "^4.17.1",
     "socket.io": "^4.1.2"
   },
